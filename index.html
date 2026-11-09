@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>いっしょにさんぽするZINE</title>
+
+<!-- Adobe Fonts：YOUR_PROJECT_IDを自分のプロジェクトIDに変更 -->
+<link rel="stylesheet" href="https://use.typekit.net/YOUR_PROJECT_ID.css">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+:root {
+    --green: #2daf5f;
+    --dark: #173d28;
+    --cream: #ffffff;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--green);
+    color: var(--dark);
+    font-family: "ab-babywalk", "Noto Sans JP", sans-serif;
+}
+
+/* オープニング画面 */
+#splash {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--green);
+    z-index: 9999;
+    animation: splashDisappear 0.1s 4.4s forwards;
+}
+
+#splash img {
+    display: block;
+    width: min(100%, 606px);
+    max-height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    animation: splashLogo 4.4s ease-in-out forwards;
+    transform: translateX(-15px);
+
+}
+
+/* ロゴ：フェードイン → 少し表示 → フェードアウト */
+@keyframes splashLogo {
+    0%   { opacity: 0; }
+    27%  { opacity: 1; }
+    73%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* オープニング画面を最後に非表示 */
+@keyframes splashDisappear {
+    to {
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+/* サイト本体：下から浮き上がりながらフェードイン */
+#site {
+    opacity: 0;
+    transform: translateY(28px);
+    animation: siteReveal 1.5s 4.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes siteReveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+button, input {
+    font: inherit;
+}
+
+.container {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+}
+
+/* メイン操作エリア */
+.top-area {
+    padding: 35px 0 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.add-button {
+    border: 1px solid var(--dark);
+    background: var(--cream);
+    color: var(--dark);
+    padding: 12px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.add-button:hover {
+    background: var(--dark);
+    color: white;
+}
+
+.photo-count {
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+/* 登録フォーム */
+.form-area {
+    display: none;
+    background: var(--cream);
+    padding: 25px;
+    margin-bottom: 35px;
+    border-radius: 5px;
+}
+
+.form-area.open {
+    display: block;
+}
+
+.form-area h2 {
+    margin-top: 0;
+    font-size: 22px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #b6c9b9;
+    background: white;
+    border-radius: 3px;
+    color: var(--dark);
+}
+
+.form-group input[type="file"] {
+    padding: 10px;
+}
+
+.save-button {
+    background: var(--dark);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    cursor: pointer;
+    border-radius: 30px;
+}
+
+.save-button:hover {
+    opacity: 0.8;
+}
+
+/* 検索・並び替え */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 20px 0 30px;
+}
+
+.search-area {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-area input {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 30px;
+    background: var(--cream);
+    color: var(--dark);
+}
+
+.sort-area select {
+    padding: 11px 15px;
+    border: none;
+    border-radius: 30px;
+    background: var(--cream);
+    color: var(--dark);
+}
+
+/* 写真一覧 */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 35px 22px;
+    padding-bottom: 80px;
+}
+
+.photo-card {
+    background: var(--cream);
+    padding: 10px 10px 17px;
+    cursor: pointer;
+    transition: transform 0.25s;
+    align-self: start;
+}
+
+.photo-card:nth-child(3n + 2) {
+    margin-top: 45px;
+}
+
+.photo-card:nth-child(3n) {
+    margin-top: 15px;
+}
+
+.photo-card:hover {
+    transform: translateY(-5px) rotate(-0.5deg);
+}
+
+.photo-card img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+    background: #dce8d9;
+}
+
+.photo-info {
+    padding: 13px 5px 0;
+}
+
+.photo-date {
+    font-size: 12px;
+    opacity: 0.65;
+    margin-bottom: 5px;
+}
+
+.photo-location {
+    font-size: 18px;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 100px 20px;
+    font-size: 16px;
+}
+
+/* 拡大表示 */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.88);
+    padding: 25px;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal-content img {
+    max-width: 100%;
+    max-height: 72vh;
+    object-fit: contain;
+}
+
+.modal-info {
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
+
+.modal-info p {
+    margin: 5px;
+}
+
+.modal-close {
+    position: absolute;
+    top: -35px;
+    right: 0;
+    color: white;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.delete-button {
+    margin-top: 12px;
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background: white;
+    color: black;
+}
+
+/* フッター */
+footer {
+    padding: 25px 0 40px;
+    border-top: 1px solid rgba(23, 61, 40, 0.4);
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* スマートフォン */
+@media (max-width: 700px) {
+    .gallery {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px 12px;
+    }
+
+    .photo-card:nth-child(3n + 2),
+    .photo-card:nth-child(3n) {
+        margin-top: 0;
+    }
+
+    .photo-card:nth-child(even) {
+        margin-top: 25px;
+    }
+
+    .photo-location {
+        font-size: 15px;
+    }
+
+    .top-area {
+        padding-top: 20px;
+    }
+}
+
+@media (max-width: 420px) {
+    .gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .photo-card:nth-child(even) {
+        margin-top: 0;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- オープニング画像：index.htmlと同じフォルダにsplash.pngを置く -->
+<div id="splash">
+    <img src="splash.png" alt="いっしょにさんぽするZINE">
+</div>
+
+<!-- サイト本体 -->
+<div id="site">
+<div class="container">
+
+    <div class="top-area">
+        <button class="add-button" id="toggleForm">
+            ＋ 写真を追加する
+        </button>
+
+        <span class="photo-count" id="totalCount">0 PHOTOS</span>
+    </div>
+
+    <!-- 登録フォーム -->
+    <section class="form-area" id="formArea">
+        <h2>写真を保存する</h2>
+
+        <form id="photoForm">
+
+            <div class="form-group">
+                <label for="photoFile">写真</label>
+                <input
+                    type="file"
+                    id="photoFile"
+                    accept="image/*"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="photoDate">日にち</label>
+                <input
+                    type="date"
+                    id="photoDate"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="photoLocation">場所</label>
+                <input
+                    type="text"
+                    id="photoLocation"
+                    placeholder="例：鎌倉、由比ヶ浜、本厚木"
+                    required
+                >
+            </div>
+
+            <button class="save-button" type="submit">
+                保存する
+            </button>
+
+        </form>
+    </section>
+
+    <!-- 検索・並び替え -->
+    <section class="controls">
+
+        <div class="search-area">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="場所で検索する..."
+            >
+        </div>
+
+        <div class="sort-area">
+            <select id="sortSelect">
+                <option value="newest">新しい順</option>
+                <option value="oldest">古い順</option>
+            </select>
+        </div>
+
+    </section>
+
+    <!-- 写真一覧 -->
+    <main class="gallery" id="gallery">
+        <p class="empty-message">まだ写真がありません。</p>
+    </main>
+
+    <footer>
+        MY WALKING DIARY
+    </footer>
+
+</div>
+</div><!-- /#site -->
+
+<!-- 写真拡大モーダル -->
+<div class="modal" id="modal">
+
+    <div class="modal-content">
+
+        <button class="modal-close" id="closeModal">
+            ×
+        </button>
+
+        <img id="modalImage" src="" alt="">
+
+        <div class="modal-info">
+            <p id="modalDate"></p>
+            <p id="modalLocation"></p>
+
+            <button class="delete-button" id="deleteButton">
+                この写真を削除する
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =================================
+   IndexedDBの準備
+================================= */
+
+const DB_NAME = "WalkingZineDB";
+const DB_VERSION = 1;
+const STORE_NAME = "photos";
+
+let db;
+let photos = [];
+let selectedPhotoId = null;
+
+function openDatabase() {
+
+    return new Promise((resolve, reject) => {
+
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = (event) => {
+
+            const database = event.target.result;
+
+            if (!database.objectStoreNames.contains(STORE_NAME)) {
+
+                database.createObjectStore(STORE_NAME, {
+                    keyPath: "id",
+                    autoIncrement: true
+                });
+
+            }
+
+        };
+
+        request.onsuccess = () => {
+            db = request.result;
+            resolve(db);
+        };
+
+        request.onerror = () => {
+            reject(request.error);
+        };
+
+    });
+
+}
+
+/* =================================
+   写真を保存
+================================= */
+
+function savePhoto(photo) {
+
+    return new Promise((resolve, reject) => {
+
+        const transaction = db.transaction(
+            STORE_NAME,
+            "readwrite"
+        );
+
+        const store = transaction.objectStore(STORE_NAME);
+
+        const request = store.add(photo);
+
+        request.onsuccess = () => resolve(request.result);
+
+        request.onerror = () => reject(request.error);
+
+    });
+
+}
+
+/* =================================
+   写真を取得
+================================= */
+
+function getAllPhotos() {
+
+    return new Promise((resolve, reject) => {
+
+        const transaction = db.transaction(
+            STORE_NAME,
+            "readonly"
+        );
+
+        const store = transaction.objectStore(STORE_NAME);
+
+        const request = store.getAll();
+
+        request.onsuccess = () => resolve(request.result);
+
+        request.onerror = () => reject(request.error);
+
+    });
+
+}
+
+/* =================================
+   写真を削除
+================================= */
+
+function removePhoto(id) {
+
+    return new Promise((resolve, reject) => {
+
+        const transaction = db.transaction(
+            STORE_NAME,
+            "readwrite"
+        );
+
+        const store = transaction.objectStore(STORE_NAME);
+
+        const request = store.delete(id);
+
+        request.onsuccess = () => resolve();
+
+        request.onerror = () => reject(request.error);
+
+    });
+
+}
+
+/* =================================
+   写真一覧を更新
+================================= */
+
+async function displayPhotos() {
+
+    photos = await getAllPhotos();
+
+    const gallery = document.getElementById("gallery");
+    const searchWord = document
+        .getElementById("searchInput")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const sortType = document.getElementById("sortSelect").value;
+
+    // 場所で検索
+    let filteredPhotos = photos.filter(photo => {
+
+        return photo.location
+            .toLowerCase()
+            .includes(searchWord);
+
+    });
+
+    // 日付で並び替え
+    filteredPhotos.sort((a, b) => {
+
+        if (sortType === "newest") {
+            return b.date.localeCompare(a.date);
+        }
+
+        return a.date.localeCompare(b.date);
+
+    });
+
+    // 写真枚数
+    document.getElementById("totalCount").textContent =
+        photos.length + " PHOTOS";
+
+    gallery.innerHTML = "";
+
+    if (filteredPhotos.length === 0) {
+
+        gallery.innerHTML = `
+            <p class="empty-message">
+                写真が見つかりません。
+            </p>
+        `;
+
+        return;
+
+    }
+
+    filteredPhotos.forEach(photo => {
+
+        const card = document.createElement("article");
+        card.className = "photo-card";
+
+        const image = document.createElement("img");
+        image.src = URL.createObjectURL(photo.image);
+        image.alt = photo.location;
+
+        const info = document.createElement("div");
+        info.className = "photo-info";
+
+        const date = document.createElement("div");
+        date.className = "photo-date";
+        date.textContent = photo.date;
+
+        const location = document.createElement("p");
+        location.className = "photo-location";
+        location.textContent = photo.location;
+
+        info.appendChild(date);
+        info.appendChild(location);
+
+        card.appendChild(image);
+        card.appendChild(info);
+
+        card.addEventListener("click", () => {
+            openModal(photo);
+        });
+
+        gallery.appendChild(card);
+
+    });
+
+}
+
+/* =================================
+   写真追加フォーム
+================================= */
+
+document.getElementById("toggleForm").addEventListener(
+    "click",
+    () => {
+
+        document
+            .getElementById("formArea")
+            .classList.toggle("open");
+
+    }
+);
+
+document.getElementById("photoForm").addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+        const file = document.getElementById("photoFile").files[0];
+        const date = document.getElementById("photoDate").value;
+        const location = document
+            .getElementById("photoLocation")
+            .value
+            .trim();
+
+        if (!file || !date || !location) {
+            alert("写真・日にち・場所を入力してください。");
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            alert("画像ファイルを選択してください。");
+            return;
+        }
+
+        const photo = {
+            image: file,
+            date: date,
+            location: location
+        };
+
+        try {
+
+            await savePhoto(photo);
+
+            document.getElementById("photoForm").reset();
+
+            document
+                .getElementById("formArea")
+                .classList.remove("open");
+
+            await displayPhotos();
+
+        } catch (error) {
+
+            console.error(error);
+            alert("写真を保存できませんでした。");
+
+        }
+
+    }
+);
+
+/* =================================
+   検索
+================================= */
+
+document.getElementById("searchInput").addEventListener(
+    "input",
+    displayPhotos
+);
+
+/* =================================
+   並び替え
+================================= */
+
+document.getElementById("sortSelect").addEventListener(
+    "change",
+    displayPhotos
+);
+
+/* =================================
+   写真を拡大表示
+================================= */
+
+function openModal(photo) {
+
+    selectedPhotoId = photo.id;
+
+    const modal = document.getElementById("modal");
+    const image = document.getElementById("modalImage");
+
+    image.src = URL.createObjectURL(photo.image);
+
+    document.getElementById("modalDate").textContent =
+        photo.date;
+
+    document.getElementById("modalLocation").textContent =
+        photo.location;
+
+    modal.classList.add("open");
+
+}
+
+/* =================================
+   拡大表示を閉じる
+================================= */
+
+function closeModal() {
+
+    document.getElementById("modal").classList.remove("open");
+
+    document.getElementById("modalImage").src = "";
+
+    selectedPhotoId = null;
+
+}
+
+document.getElementById("closeModal").addEventListener(
+    "click",
+    closeModal
+);
+
+document.getElementById("modal").addEventListener(
+    "click",
+    (event) => {
+
+        if (event.target.id === "modal") {
+            closeModal();
+        }
+
+    }
+);
+
+/* =================================
+   写真削除
+================================= */
+
+document.getElementById("deleteButton").addEventListener(
+    "click",
+    async () => {
+
+        if (selectedPhotoId === null) return;
+
+        const result = confirm(
+            "この写真を削除してもよろしいですか？"
+        );
+
+        if (!result) return;
+
+        await removePhoto(selectedPhotoId);
+
+        closeModal();
+
+        await displayPhotos();
+
+    }
+);
+
+/* =================================
+   起動
+================================= */
+
+async function init() {
+
+    try {
+
+        await openDatabase();
+
+        await displayPhotos();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "データベースを開けませんでした。ブラウザの設定を確認してください。"
+        );
+
+    }
+
+}
+
+init();
+
+</script>
+
+</body>
+</html>
